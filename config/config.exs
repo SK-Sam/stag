@@ -15,11 +15,3 @@ config :logger,
 if File.exists?('config/secrets.exs') do
   import_config('secrets.exs')
 end
-
-# Sample configuration:
-#
-#     config :logger, :console,
-#       level: :info,
-#       format: "$date $time [$level] $metadata$message\n",
-#       metadata: [:user_id]
-#
