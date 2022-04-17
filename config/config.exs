@@ -12,6 +12,10 @@ import Config
 config :logger,
   level: :info
 
+if File.exists?('config/secrets.exs') do
+  import_config('secrets.exs')
+end
+
 # Sample configuration:
 #
 #     config :logger, :console,
