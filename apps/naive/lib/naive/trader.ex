@@ -15,7 +15,7 @@ defmodule Naive.Trader do
   alias Streamer.Binance.TradeEvent
 
   defmodule State do
-    @enfore_keys [:symbol, :profit_interval, :tick_size]
+    @enforce_keys [:symbol, :profit_interval, :tick_size]
     defstruct [
       :symbol,
       :buy_order,
@@ -29,7 +29,7 @@ defmodule Naive.Trader do
     GenServer.start_link(__MODULE__, args, name: :trader)
   end
 
-  def init(%{symbol: symbol, profit_interval: profit_interval} = args) do
+  def init(%{symbol: symbol, profit_interval: profit_interval}) do
     symbol = String.upcase(symbol)
 
     Logger.info("Initializing new trader for #{symbol}")
@@ -114,6 +114,8 @@ defmodule Naive.Trader do
     {:noreply, state}
   end
 
+  # Each symbol has a different tick and may change as time passes.
+  # Fetch each time we start a process in case withdrawal is enabled.
   defp fetch_tick_size(symbol) do
     Binance.get_exchange_info()
     |> elem(1)
