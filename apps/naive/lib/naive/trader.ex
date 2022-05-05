@@ -34,6 +34,11 @@ defmodule Naive.Trader do
 
     Logger.info("Initializing new trader for #{symbol}")
 
+    Phoenix.PubSub.subscribe(
+      Streamer.PubSub,
+      "TRADE_EVENTS:#{symbol}"
+    )
+
     tick_size = fetch_tick_size(symbol)
 
     {:ok,
@@ -46,7 +51,7 @@ defmodule Naive.Trader do
 
   # Pattern match on buy_order = nil to confirm dealing with New Trader
   # in order to place a new buy order.
-  def handle_cast(
+  def handle_info(
         %TradeEvent{price: price},
         %State{symbol: symbol, buy_order: nil} = state
       ) do
@@ -62,7 +67,7 @@ defmodule Naive.Trader do
 
   # Pattern match on Buyer Order existence to confirm buy order was filled.
   # Proceed with placing a sell order
-  def handle_cast(
+  def handle_info(
         %TradeEvent{
           buyer_order_id: order_id,
           quantity: quantity
@@ -92,7 +97,7 @@ defmodule Naive.Trader do
   end
 
   # Trader confirming his sell order was filled.
-  def handle_cast(
+  def handle_info(
         %TradeEvent{
           seller_order_id: order_id,
           quantity: quantity
@@ -110,7 +115,7 @@ defmodule Naive.Trader do
   end
 
   # Trader has an open order, and incoming event should not interrupt this trader. We ignore incoming event.
-  def handle_cast(%TradeEvent{}, state) do
+  def handle_info(%TradeEvent{}, state) do
     {:noreply, state}
   end
 
